@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ckb">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فرۆشتن - سیستەمی مارکێت</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tahoma', 'Arial', sans-serif; }
+        body { background: #f0f2f5; }
+        .top-bar { background: #1e3c72; color: white; height: 30px; line-height: 30px; padding: 0 20px; display: flex; justify-content: space-between; position: fixed; top: 0; left: 0; right: 0; }
+        .container { margin-top: 50px; padding: 20px; max-width: 1200px; margin-left: auto; margin-right: auto; }
+        .back-button { display: inline-block; margin-bottom: 20px; color: #1e3c72; text-decoration: none; padding: 8px 15px; background: white; border-radius: 5px; }
+        h1 { color: #1e3c72; margin-bottom: 20px; }
+        .sell-section { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .add-product, .cart { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #555; }
+        input { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; }
+        button { background: #1e3c72; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; }
+        .cart-items { max-height: 300px; overflow-y: auto; }
+        .cart-item { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 0.5fr; padding: 10px; border-bottom: 1px solid #ddd; align-items: center; }
+        .cart-total { margin-top: 20px; text-align: left; font-size: 20px; font-weight: bold; color: #1e3c72; }
+        .remove { color: #f44336; cursor: pointer; text-align: center; }
+        .message { padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none; }
+        @media (max-width: 768px) { .sell-section { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="top-bar" id="topBar"></div>
+    
+    <div class="container">
+        <a href="dashboard.html" class="back-button"><i class="fas fa-arrow-right"></i> گەڕانەوە</a>
+        <h1><i class="fas fa-shopping-cart"></i> کاڵا فرۆشتن</h1>
+        
+        <div class="message" id="message"></div>
+        
+        <div class="sell-section">
+            <div class="add-product">
+                <h2>زیادکردنی کاڵا</h2>
+                <div class="form-group">
+                    <label>باڕکۆد:</label>
+                    <input type="text" id="barcode" autofocus>
+                </div>
+                <div class="form-group">
+                    <label>ژمارە:</label>
+                    <input type="number" id="quantity" value="1" min="1">
+                </div>
+                <button onclick="addToCart()"><i class="fas fa-plus"></i> زیادکردن</button>
+            </div>
+            
+            <div class="cart">
+                <h2>کاڵاکانی فرۆشتن</h2>
+                <div class="cart-items" id="cartItems"></div>
+                <div class="cart-total" id="cartTotal">کۆی گشتی: ٠ د.ع</div>
+                
+                <div style="margin-top: 20px;">
+                    <div class="form-group">
+                        <label>ناوی کڕیار:</label>
+                        <input type="text" id="customerName">
+                    </div>
+                    <div class="form-group">
+                        <label>پارەی وەرگیراو:</label>
+                        <input type="number" id="paidAmount" step="0.001">
+                    </div>
+                    <button onclick="completeSale()" style="width: 100%;"><i class="fas fa-check"></i> تەواوکردنی فرۆشتن</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+
+        function updateTopBar() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            document.getElementById('topBar').innerHTML = `
+                <div><i class="fas fa-user"></i> ${user.name}</div>
+                <div><i class="fas fa-calendar"></i> ${new Date().toLocaleDateString('ckb')}</div>
+            `;
+        }
+
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = `message ${type}`;
+            msg.style.display = 'block';
+            setTimeout(() => msg.style.display = 'none', 3000);
+        }
+
+        function addToCart() {
+            const barcode = document.getElementById('barcode').value;
+            const quantity = parseInt(document.getElementById('quantity').value);
+            
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const product = products.find(p => p.barcode === barcode);
+            
+            if (!product) {
+                showMessage('باڕکۆد ناسراو نییە', 'error');
+                return;
+            }
+            
+            if (product.quantity < quantity) {
+                showMessage('بڕی کاڵای تەواو نییە', 'error');
+                return;
+            }
+            
+            const cartItem = {
+                id: product.id,
+                name: product.name,
+                price: product.sellingPrice,
+                quantity: quantity,
+                total: product.sellingPrice * quantity
+            };
+            
+            cart.push(cartItem);
+            updateCart();
+            
+            document.getElementById('barcode').value = '';
+            document.getElementById('quantity').value = '1';
+            document.getElementById('barcode').focus();
+        }
+
+        function updateCart() {
+            const container = document.getElementById('cartItems');
+            let total = 0;
+            
+            container.innerHTML = '';
+            
+            cart.forEach((item, index) => {
+                total += item.total;
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                div.innerHTML = `
+                    <span>${item.name}</span>
+                    <span>${item.price.toLocaleString()}</span>
+                    <span>${item.quantity}</span>
+                    <span>${item.total.toLocaleString()}</span>
+                    <span class="remove" onclick="removeFromCart(${index})"><i class="fas fa-trash"></i></span>
+                `;
+                container.appendChild(div);
+            });
+            
+            document.getElementById('cartTotal').textContent = `کۆی گشتی: ${total.toLocaleString()} د.ع`;
+            document.getElementById('paidAmount').value = total;
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCart();
+        }
+
+        function completeSale() {
+            if (cart.length === 0) {
+                showMessage('هیچ کاڵایەک نییە لە سەبەتەدا', 'error');
+                return;
+            }
+            
+            const paidAmount = parseFloat(document.getElementById('paidAmount').value);
+            const total = cart.reduce((sum, item) => sum + item.total, 0);
+            
+            if (paidAmount < total) {
+                showMessage('بڕی پارەی وەرگیراو کەمترە لە کۆی گشتی', 'error');
+                return;
+            }
+            
+            // کەمکردنەوەی بڕی کاڵا لە کۆگا
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            cart.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                if (product) {
+                    product.quantity -= item.quantity;
+                }
+            });
+            localStorage.setItem('products', JSON.stringify(products));
+            
+            // تۆمارکردنی فرۆشتن
+            const sales = JSON.parse(localStorage.getItem('sales')) || [];
+            const sale = {
+                id: Date.now(),
+                items: cart,
+                total: total,
+                paid: paidAmount,
+                remaining: paidAmount - total,
+                customer: document.getElementById('customerName').value || 'گەشتیار',
+                date: new Date().toISOString()
+            };
+            sales.push(sale);
+            localStorage.setItem('sales', JSON.stringify(sales));
+            
+            showMessage('فرۆشتن تەواو بوو', 'success');
+            cart = [];
+            updateCart();
+            document.getElementById('customerName').value = '';
+        }
+
+        updateTopBar();
+    </script>
+</html>
