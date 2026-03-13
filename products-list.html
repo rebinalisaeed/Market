@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ckb">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لیستی کاڵاکان - سیستەمی مارکێت</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tahoma', 'Arial', sans-serif; }
+        body { background: #f0f2f5; }
+        .top-bar { background: #1e3c72; color: white; height: 30px; line-height: 30px; padding: 0 20px; display: flex; justify-content: space-between; position: fixed; top: 0; left: 0; right: 0; }
+        .container { margin-top: 50px; padding: 20px; max-width: 1200px; margin-left: auto; margin-right: auto; }
+        .back-button { display: inline-block; margin-bottom: 20px; color: #1e3c72; text-decoration: none; padding: 8px 15px; background: white; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: all 0.3s; }
+        .back-button:hover { background: #1e3c72; color: white; }
+        h1 { color: #1e3c72; margin-bottom: 20px; }
+        .search-box { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 10px; }
+        .search-box input { flex: 1; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; }
+        .search-box button { padding: 12px 25px; background: #1e3c72; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        th { background: #1e3c72; color: white; padding: 15px; text-align: center; }
+        td { padding: 12px; text-align: center; border-bottom: 1px solid #ddd; }
+        tr:hover { background: #f5f5f5; }
+        .low-stock { background: #ffebee; color: #c62828; font-weight: bold; }
+        .expired { background: #ffebee; color: #c62828; }
+        .delete-btn { color: #c62828; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="top-bar" id="topBar"></div>
+    
+    <div class="container">
+        <a href="dashboard.html" class="back-button"><i class="fas fa-arrow-right"></i> گەڕانەوە</a>
+        <h1><i class="fas fa-list"></i> لیستی کاڵاکان</h1>
+        
+        <div class="search-box">
+            <input type="text" id="search" placeholder="گەڕان بە ناو یان باڕکۆد...">
+            <button onclick="searchProducts()"><i class="fas fa-search"></i> گەڕان</button>
+        </div>
+        
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>باڕکۆد</th>
+                        <th>ناو</th>
+                        <th>کاتێگۆری</th>
+                        <th>نرخی کڕین</th>
+                        <th>نرخی فرۆشتن</th>
+                        <th>بڕ</th>
+                        <th>کەمترین بڕ</th>
+                        <th>بەسەرچوون</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="productsTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function updateTopBar() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (!user) window.location.href = 'login.html';
+            document.getElementById('topBar').innerHTML = `
+                <div><i class="fas fa-user"></i> ${user.name}</div>
+                <div><i class="fas fa-calendar"></i> ${new Date().toLocaleDateString('ckb')}</div>
+            `;
+        }
+
+        function loadProducts() {
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const tbody = document.getElementById('productsTable');
+            tbody.innerHTML = '';
+            
+            if (products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="padding: 50px; text-align: center;">هیچ کاڵایەک نییە</td></tr>';
+                return;
+            }
+            
+            products.forEach(product => {
+                const row = document.createElement('tr');
+                const today = new Date();
+                const expiry = product.expiryDate ? new Date(product.expiryDate) : null;
+                
+                if (product.quantity <= product.minQuantity) {
+                    row.className = 'low-stock';
+                } else if (expiry && expiry < today) {
+                    row.className = 'expired';
+                }
+                
+                row.innerHTML = `
+                    <td>${product.barcode}</td>
+                    <td>${product.name}</td>
+                    <td>${getCategoryName(product.category)}</td>
+                    <td>${product.purchasePrice.toLocaleString()}</td>
+                    <td>${product.sellingPrice.toLocaleString()}</td>
+                    <td>${product.quantity}</td>
+                    <td>${product.minQuantity}</td>
+                    <td>${product.expiryDate || '-'}</td>
+                    <td><i class="fas fa-trash delete-btn" onclick="deleteProduct(${product.id})"></i></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function getCategoryName(id) {
+            const categories = {1: 'شیرینی', 2: 'خواردنەوە', 3: 'شووشەیی'};
+            return categories[id] || 'نەزانراو';
+        }
+
+        function deleteProduct(id) {
+            if (confirm('دڵنیایت لە سڕینەوەی ئەم کاڵایە؟')) {
+                let products = JSON.parse(localStorage.getItem('products')) || [];
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('products', JSON.stringify(products));
+                loadProducts();
+            }
+        }
+
+        function searchProducts() {
+            const search = document.getElementById('search').value.toLowerCase();
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const tbody = document.getElementById('productsTable');
+            
+            const filtered = products.filter(p => 
+                p.name.toLowerCase().includes(search) || 
+                p.barcode.includes(search)
+            );
+            
+            tbody.innerHTML = '';
+            filtered.forEach(product => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product.barcode}</td>
+                    <td>${product.name}</td>
+                    <td>${getCategoryName(product.category)}</td>
+                    <td>${product.purchasePrice}</td>
+                    <td>${product.sellingPrice}</td>
+                    <td>${product.quantity}</td>
+                    <td>${product.minQuantity}</td>
+                    <td>${product.expiryDate || '-'}</td>
+                    <td><i class="fas fa-trash delete-btn" onclick="deleteProduct(${product.id})"></i></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        updateTopBar();
+        loadProducts();
+    </script>
+</body>
+</html>
