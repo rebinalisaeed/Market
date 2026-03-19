@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ckb">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبۆرد - سیستەمی مارکێت</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tahoma', 'Arial', sans-serif;
+        }
+        
+        body {
+            background: white;
+        }
+        
+        /* Top Bar */
+        .top-bar {
+            background: #1e3c72;
+            color: white;
+            height: 30px;
+            line-height: 30px;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .user-info i, .date-info i {
+            margin-left: 8px;
+            margin-right: 8px;
+        }
+        
+        .logout-btn {
+            color: white;
+            cursor: pointer;
+            margin-right: 15px;
+            padding: 0 10px;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            opacity: 0.8;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+        }
+        
+        /* Dashboard Container */
+        .dashboard {
+            margin-top: 40px;
+            padding: 20px;
+            background: white;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .dashboard-title {
+            text-align: center;
+            color: #1e3c72;
+            margin-bottom: 40px;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        /* Grid Layout - 9 boxes per row */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+        
+        /* Box Styles */
+        .box {
+            width: 100px;
+            height: 90px;
+            border-radius: 8px;
+            padding: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: 0 auto;
+        }
+        
+        .box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        
+        .box-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .box-title {
+            font-size: 10px;
+            font-weight: bold;
+            line-height: 1.3;
+            max-width: 90px;
+        }
+        
+        /* Blue boxes (1-9) */
+        .box-blue-1 { background: #2196F3; }
+        .box-blue-2 { background: #1976D2; }
+        .box-blue-3 { background: #0D47A1; }
+        .box-blue-4 { background: #42A5F5; }
+        .box-blue-5 { background: #1E88E5; }
+        .box-blue-6 { background: #1565C0; }
+        .box-blue-7 { background: #0D3B66; }
+        .box-blue-8 { background: #4FC3F7; }
+        .box-blue-9 { background: #0288D1; }
+        
+        /* Green boxes (10-18) */
+        .box-green-1 { background: #4CAF50; }
+        .box-green-2 { background: #388E3C; }
+        .box-green-3 { background: #2E7D32; }
+        .box-green-4 { background: #81C784; }
+        .box-green-5 { background: #66BB6A; }
+        .box-green-6 { background: #43A047; }
+        .box-green-7 { background: #1B5E20; }
+        .box-green-8 { background: #A5D6A7; }
+        .box-green-9 { background: #C8E6C9; color: #1B5E20; }
+        
+        /* Orange boxes (19-27) */
+        .box-orange-1 { background: #FF9800; }
+        .box-orange-2 { background: #F57C00; }
+        .box-orange-3 { background: #E65100; }
+        .box-orange-4 { background: #FFB74D; }
+        .box-orange-5 { background: #FFA726; }
+        .box-orange-6 { background: #FB8C00; }
+        .box-orange-7 { background: #EF6C00; }
+        .box-orange-8 { background: #FFCC80; color: #E65100; }
+        .box-orange-9 { background: #FFE0B2; color: #E65100; }
+        
+        /* Red boxes (28-36) */
+        .box-red-1 { background: #f44336; }
+        .box-red-2 { background: #d32f2f; }
+        .box-red-3 { background: #b71c1c; }
+        .box-red-4 { background: #e57373; }
+        .box-red-5 { background: #ef5350; }
+        .box-red-6 { background: #e53935; }
+        .box-red-7 { background: #c62828; }
+        .box-red-8 { background: #ff8a80; color: #b71c1c; }
+        .box-red-9 { background: #ffcdd2; color: #b71c1c; }
+        
+        /* Brown boxes (37-45) */
+        .box-brown-1 { background: #8B4513; }
+        .box-brown-2 { background: #A0522D; }
+        .box-brown-3 { background: #CD853F; }
+        .box-brown-4 { background: #D2691E; }
+        .box-brown-5 { background: #8B5A2B; }
+        .box-brown-6 { background: #7B3F00; }
+        .box-brown-7 { background: #654321; }
+        .box-brown-8 { background: #BC8F8F; }
+        .box-brown-9 { background: #DEB887; color: #4A2C1A; }
+        
+        /* Row Title */
+        .row-title {
+            text-align: center;
+            margin: 30px 0 15px 0;
+            color: #1e3c72;
+            font-size: 18px;
+            font-weight: bold;
+            position: relative;
+        }
+        
+        .row-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 2px;
+            background: #1e3c72;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .grid-container {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .grid-container {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .box {
+                width: 90px;
+                height: 80px;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Welcome Message */
+        .welcome-message {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        .welcome-message i {
+            margin: 0 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar" id="topBar"></div>
+    
+    <!-- Dashboard Content -->
+    <div class="dashboard">
+        <!-- Welcome Message -->
+        <div class="welcome-message" id="welcomeMessage"></div>
+        
+        <h2 class="dashboard-title">
+            <i class="fas fa-store"></i> 
+            داشبۆردی سیستەمی مارکێت
+            <i class="fas fa-store"></i>
+        </h2>
+        
+        <!-- Row 1: Blue Boxes (1-9) -->
+        <div class="row-title">
+            <i class="fas fa-cube"></i> بەشی فرۆشتن و کاشێر <i class="fas fa-cube"></i>
+        </div>
+        <div class="grid-container" id="row1"></div>
+        
+        <!-- Row 2: Green Boxes (10-18) -->
+        <div class="row-title">
+            <i class="fas fa-box"></i> بەشی کۆگا و کاڵا <i class="fas fa-box"></i>
+        </div>
+        <div class="grid-container" id="row2"></div>
+        
+        <!-- Row 3: Orange Boxes (19-27) -->
+        <div class="row-title">
+            <i class="fas fa-hand-holding-usd"></i> بەشی قەرز و قیست <i class="fas fa-hand-holding-usd"></i>
+        </div>
+        <div class="grid-container" id="row3"></div>
+        
+        <!-- Row 4: Red Boxes (28-36) -->
+        <div class="row-title">
+            <i class="fas fa-chart-line"></i> بەشی ڕاپۆرت و کەشف حساب <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="grid-container" id="row4"></div>
+        
+        <!-- Row 5: Brown Boxes (37-45) -->
+        <div class="row-title">
+            <i class="fas fa-cog"></i> بەشی ڕێکخستن و بەکارهێنەران <i class="fas fa-cog"></i>
+        </div>
+        <div class="grid-container" id="row5"></div>
+    </div>
+
+    <script>
+        // زانیاری بەکارهێنەر
+        function getCurrentUser() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (!user) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            return user;
+        }
+
+        // نوێکردنەوەی Top Bar
+        function updateTopBar() {
+            const user = getCurrentUser();
+            if (!user) return;
+            
+            const now = new Date();
+            const days = ['یەکشەممە', 'دووشەممە', 'سێشەممە', 'چوارشەممە', 'پێنجشەممە', 'هەینی', 'شەممە'];
+            
+            document.getElementById('topBar').innerHTML = `
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>${user.name}</span>
+                    <i class="fas fa-tag"></i>
+                    <span>${user.role}</span>
+                </div>
+                <div class="date-info">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>${now.toLocaleDateString('ckb')}</span>
+                    <i class="fas fa-clock"></i>
+                    <span>${now.toLocaleTimeString('ckb')}</span>
+                    <i class="fas fa-calendar-day"></i>
+                    <span>${days[now.getDay()]}</span>
+                    <span class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> دەرچوون
+                    </span>
+                </div>
+            `;
+        }
+
+        // پەیامی پێشوازی
+        function updateWelcomeMessage() {
+            const user = getCurrentUser();
+            if (!user) return;
+            
+            const hour = new Date().getHours();
+            let greeting = '';
+            
+            if (hour < 12) greeting = 'بەیانی باش';
+            else if (hour < 17) greeting = 'نیوەڕۆ باش';
+            else greeting = 'ئێوارە باش';
+            
+            document.getElementById('welcomeMessage').innerHTML = `
+                <i class="fas fa-smile"></i>
+                ${greeting}، ${user.name}!
+                <i class="fas fa-smile"></i>
+            `;
+        }
+
+        // دەرچوون
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+
+        // لیستی هەموو بۆکسەکان
+        const allBoxes = [
+            // Row 1: Blue boxes (1-9) - فرۆشتن و کاشێر
+            { id: 1, name: 'کاڵا فرۆشتن', icon: 'fa-shopping-cart', color: 'box-blue-1', link: 'sell.html', roles: ['super_admin', 'admin', 'cashier'] },
+            { id: 2, name: 'وەسڵی فرۆشراوەکان', icon: 'fa-file-invoice', color: 'box-blue-2', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 3, name: 'پارە وەرگرتن لە کاشێر', icon: 'fa-money-bill-wave', color: 'box-blue-3', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 4, name: 'پارە خەرجکردن', icon: 'fa-money-bill-alt', color: 'box-blue-4', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 5, name: 'تۆمارکردنی بەهەدەردراوەکان', icon: 'fa-trash-alt', color: 'box-blue-5', link: '#', roles: ['super_admin', 'admin', 'store'] },
+            { id: 6, name: 'دروستکردنی نرخ و ناو', icon: 'fa-tags', color: 'box-blue-6', link: '#', roles: ['super_admin', 'admin', 'store'] },
+            { id: 7, name: 'دروستکردنی باڕکۆد', icon: 'fa-barcode', color: 'box-blue-7', link: '#', roles: ['super_admin', 'admin', 'store'] },
+            { id: 8, name: 'کاشێر', icon: 'fa-cash-register', color: 'box-blue-8', link: '#', roles: ['super_admin', 'admin', 'cashier'] },
+            { id: 9, name: 'دراو گۆڕین', icon: 'fa-exchange-alt', color: 'box-blue-9', link: '#', roles: ['super_admin', 'admin'] },
+            
+            // Row 2: Green boxes (10-18) - کۆگا و کاڵا
+            { id: 10, name: 'ناساندنی کاڵای نوێ', icon: 'fa-box', color: 'box-green-1', link: 'new-product.html', roles: ['super_admin', 'admin', 'store'] },
+            { id: 11, name: 'لیستی کاڵاکان', icon: 'fa-list', color: 'box-green-2', link: 'products-list.html', roles: ['super_admin', 'admin', 'store'] },
+            { id: 12, name: 'تۆمارکردنی وەسڵی کڕین', icon: 'fa-file-invoice', color: 'box-green-3', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 13, name: 'وەسڵە کڕدراوەکان', icon: 'fa-file-invoice', color: 'box-green-4', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 14, name: 'کاتێگۆریەکان', icon: 'fa-folder', color: 'box-green-5', link: '#', roles: ['super_admin', 'admin', 'store'] },
+            { id: 15, name: 'جەردکردن', icon: 'fa-warehouse', color: 'box-green-6', link: '#', roles: ['super_admin', 'admin', 'store'] },
+            { id: 16, name: 'کاڵا کەمبووەکان', icon: 'fa-exclamation-triangle', color: 'box-green-7', link: '#', roles: ['super_admin', 'admin', 'store'] },
+            { id: 17, name: 'بەسەرچووەکان', icon: 'fa-calendar-times', color: 'box-green-8', link: '#', roles: ['super_admin', 'admin', 'store'] },
+            { id: 18, name: 'گەڕاندنەوەی کاڵا', icon: 'fa-undo-alt', color: 'box-green-9', link: '#', roles: ['super_admin', 'admin'] },
+            
+            // Row 3: Orange boxes (19-27) - قەرز و قیست
+            { id: 19, name: 'لیستی قەرزارەکان', icon: 'fa-users', color: 'box-orange-1', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 20, name: 'وەرگرتنەوەی قەرز', icon: 'fa-hand-holding-usd', color: 'box-orange-2', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 21, name: 'ئاگادارکردنەوەی قیست', icon: 'fa-bell', color: 'box-orange-3', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 22, name: 'داشبۆردی قیست', icon: 'fa-chart-line', color: 'box-orange-4', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 23, name: 'قەرزی کۆمپانیاکان', icon: 'fa-building', color: 'box-orange-5', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 24, name: 'مۆڵەت', icon: 'fa-file-signature', color: 'box-orange-6', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 25, name: 'چەک', icon: 'fa-money-check', color: 'box-orange-7', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 26, name: 'قەرزە کۆنەکان', icon: 'fa-history', color: 'box-orange-8', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 27, name: 'ڕێککەوتنی قەرز', icon: 'fa-handshake', color: 'box-orange-9', link: '#', roles: ['super_admin', 'admin'] },
+            
+            // Row 4: Red boxes (28-36) - ڕاپۆرت و کەشف حساب
+            { id: 28, name: 'قازانجەکان', icon: 'fa-chart-pie', color: 'box-red-1', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 29, name: 'ڕاپۆرتی فرۆشتن', icon: 'fa-chart-bar', color: 'box-red-2', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 30, name: 'کەشف حساب پارە', icon: 'fa-calculator', color: 'box-red-3', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 31, name: 'کەشف حسابی کڕیار', icon: 'fa-user-check', color: 'box-red-4', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 32, name: 'کەشف حسابی کڕین', icon: 'fa-shopping-bag', color: 'box-red-5', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 33, name: 'ڕاپۆرتی پارە', icon: 'fa-file-alt', color: 'box-red-6', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 34, name: 'ڕاپۆرتی ڕۆژانە', icon: 'fa-calendar-day', color: 'box-red-7', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 35, name: 'ڕاپۆرتی مانگانە', icon: 'fa-calendar-alt', color: 'box-red-8', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 36, name: 'ڕاپۆرتی ساڵانە', icon: 'fa-calendar', color: 'box-red-9', link: '#', roles: ['super_admin', 'admin'] },
+            
+            // Row 5: Brown boxes (37-45) - ڕێکخستن و بەکارهێنەران
+            { id: 37, name: 'بەکارهێنەرانی سیستەم', icon: 'fa-users-cog', color: 'box-brown-1', link: 'users.html', roles: ['super_admin'] },
+            { id: 38, name: 'ڕێکخستن', icon: 'fa-cog', color: 'box-brown-2', link: 'settings.html', roles: ['super_admin', 'admin'] },
+            { id: 39, name: 'پاشەکەوتی داتاکان', icon: 'fa-database', color: 'box-brown-3', link: '#', roles: ['super_admin'] },
+            { id: 40, name: 'دەفتەری ڕۆژانە', icon: 'fa-book', color: 'box-brown-4', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 41, name: 'پێداویستی', icon: 'fa-clipboard-list', color: 'box-brown-5', link: '#', roles: ['super_admin', 'admin', 'store'] },
+            { id: 42, name: 'چاپکردن', icon: 'fa-print', color: 'box-brown-6', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 43, name: 'ناردنی نامە', icon: 'fa-envelope', color: 'box-brown-7', link: '#', roles: ['super_admin'] },
+            { id: 44, name: 'یارمەتی', icon: 'fa-question-circle', color: 'box-brown-8', link: '#', roles: ['super_admin', 'admin', 'store', 'cashier'] },
+            { id: 45, name: 'دەربارە', icon: 'fa-info-circle', color: 'box-brown-9', link: '#', roles: ['super_admin', 'admin', 'store', 'cashier'] }
+        ];
+
+        // بارکردنی بۆکسەکان بەپێی ڕۆڵ
+        function loadBoxes() {
+            const user = getCurrentUser();
+            if (!user) return;
+            
+            // پاککردنەوەی هەموو ڕیزەکان
+            const rows = ['row1', 'row2', 'row3', 'row4', 'row5'];
+            rows.forEach(row => {
+                document.getElementById(row).innerHTML = '';
+            });
+            
+            // دابەشکردنی بۆکسەکان بەسەر ڕیزەکاندا
+            for (let i = 0; i < allBoxes.length; i++) {
+                const box = allBoxes[i];
+                
+                // پشکنینی ڕۆڵ
+                if (box.roles.includes(user.role)) {
+                    const rowId = `row${Math.floor(i / 9) + 1}`;
+                    const container = document.getElementById(rowId);
+                    
+                    const boxDiv = document.createElement('div');
+                    boxDiv.className = `box ${box.color}`;
+                    boxDiv.onclick = () => window.location.href = box.link;
+                    boxDiv.innerHTML = `
+                        <div class="box-icon"><i class="fas ${box.icon}"></i></div>
+                        <div class="box-title">${box.name}</div>
+                    `;
+                    
+                    container.appendChild(boxDiv);
+                }
+            }
+            
+            // پڕکردنەوەی بۆکسە بەتاڵەکان
+            rows.forEach(rowId => {
+                const container = document.getElementById(rowId);
+                const currentCount = container.children.length;
+                const neededCount = 9;
+                
+                for (let i = currentCount; i < neededCount; i++) {
+                    const emptyBox = document.createElement('div');
+                    emptyBox.className = 'box';
+                    emptyBox.style.background = '#f0f0f0';
+                    emptyBox.style.opacity = '0.3';
+                    emptyBox.style.cursor = 'default';
+                    emptyBox.innerHTML = `
+                        <div class="box-icon"><i class="fas fa-ban"></i></div>
+                        <div class="box-title">بەتاڵ</div>
+                    `;
+                    container.appendChild(emptyBox);
+                }
+            });
+        }
+
+        // هەموو شتێک باربکە
+        function init() {
+            updateTopBar();
+            updateWelcomeMessage();
+            loadBoxes();
+            
+            // نوێکردنەوەی کات هەموو چرکەیەک
+            setInterval(updateTopBar, 1000);
+        }
+
+        // دەستپێکردن
+        init();
+    </script>
+</body>
+</html>
