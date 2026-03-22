@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ckb">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبۆرد - سیستەمی مارکێت</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tahoma', 'Arial', sans-serif;
+        }
+        
+        body {
+            background: #f5f5f5;
+        }
+        
+        /* Top Bar */
+        .top-bar {
+            background: #1e3c72;
+            color: white;
+            height: 30px;
+            line-height: 30px;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .user-info i, .date-info i {
+            margin-left: 8px;
+            margin-right: 8px;
+        }
+        
+        .logout-btn {
+            color: white;
+            cursor: pointer;
+            margin-right: 15px;
+            padding: 0 10px;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            opacity: 0.8;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+        }
+        
+        /* Dashboard Container */
+        .dashboard {
+            margin-top: 40px;
+            padding: 20px;
+            background: #f5f5f5;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Grid Layout - Responsive */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 120px));
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 0;
+        }
+        
+        /* Box Styles */
+        .box {
+            width: 120px;
+            height: 105px;
+            border-radius: 12px;
+            padding: 12px 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        
+        .box-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .box-title {
+            font-size: 11px;
+            font-weight: bold;
+            line-height: 1.3;
+            max-width: 100px;
+        }
+        
+        /* Colors */
+        .box-blue {
+            background: #2196F3;
+        }
+        
+        .box-green {
+            background: #4CAF50;
+        }
+        
+        .box-orange {
+            background: #FF9800;
+        }
+        
+        .box-red {
+            background: #f44336;
+        }
+        
+        .box-brown {
+            background: #8B4513;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(110px, 110px));
+                gap: 10px;
+                justify-content: center;
+            }
+            
+            .box {
+                width: 110px;
+                height: 95px;
+            }
+            
+            .box-icon {
+                font-size: 28px;
+            }
+            
+            .box-title {
+                font-size: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 100px));
+                gap: 8px;
+            }
+            
+            .box {
+                width: 100px;
+                height: 90px;
+            }
+            
+            .box-icon {
+                font-size: 24px;
+            }
+            
+            .box-title {
+                font-size: 9px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar" id="topBar"></div>
+    
+    <!-- Dashboard Content -->
+    <div class="dashboard">
+        <div class="grid-container" id="dashboardBoxes"></div>
+    </div>
+
+    <script>
+        // زانیاری بەکارهێنەر
+        function getCurrentUser() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (!user) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            return user;
+        }
+
+        // نوێکردنەوەی Top Bar
+        function updateTopBar() {
+            const user = getCurrentUser();
+            if (!user) return;
+            
+            const now = new Date();
+            const days = ['یەکشەممە', 'دووشەممە', 'سێشەممە', 'چوارشەممە', 'پێنجشەممە', 'هەینی', 'شەممە'];
+            
+            document.getElementById('topBar').innerHTML = `
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>${user.name}</span>
+                    <i class="fas fa-tag"></i>
+                    <span>${user.role}</span>
+                </div>
+                <div class="date-info">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>${now.toLocaleDateString('ckb')}</span>
+                    <i class="fas fa-clock"></i>
+                    <span>${now.toLocaleTimeString('ckb')}</span>
+                    <i class="fas fa-calendar-day"></i>
+                    <span>${days[now.getDay()]}</span>
+                    <span class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> دەرچوون
+                    </span>
+                </div>
+            `;
+        }
+
+        // دەرچوون
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+
+        // لیستی هەموو بۆکسەکان - 32 بۆکس
+        const allBoxes = [
+            // Blue boxes (1-7) - 7 boxes
+            { id: 1, name: 'کاڵا فرۆشتن', icon: 'fa-shopping-cart', color: 'box-blue', link: 'sell.html', roles: ['super_admin', 'admin', 'cashier'] },
+            { id: 2, name: 'وەسڵی فرۆشراوەکان', icon: 'fa-file-invoice', color: 'box-blue', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 3, name: 'پارە وەرگرتن لە کاشێر', icon: 'fa-money-bill-wave', color: 'box-blue', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 4, name: 'پارە خەرجکردن', icon: 'fa-money-bill-alt', color: 'box-blue', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 5, name: 'تۆمارکردنی بەهەدەردراوەکان', icon: 'fa-trash-alt', color: 'box-blue', link: '#', roles: ['super_admin', 'admin', 'store'] },
+            { id: 6, name: 'دروستکردنی نرخ و ناو بۆسەر ڕەفە', icon: 'fa-tags', color: 'box-blue', link: '#', roles: ['super_admin', 'admin', 'store'] },
+            { id: 7, name: 'دروستکردنی باڕکۆد', icon: 'fa-barcode', color: 'box-blue', link: '#', roles: ['super_admin', 'admin', 'store'] },
+            
+            // Green boxes (8-12) - 5 boxes
+            { id: 8, name: 'ناساندنی کاڵای نوێ', icon: 'fa-box', color: 'box-green', link: 'new-product.html', roles: ['super_admin', 'admin', 'store'] },
+            { id: 9, name: 'لیستی کاڵاکان', icon: 'fa-list', color: 'box-green', link: 'products-list.html', roles: ['super_admin', 'admin', 'store'] },
+            { id: 10, name: 'تۆمارکردنی وەسڵی کڕدراو', icon: 'fa-file-invoice', color: 'box-green', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 11, name: 'وەسڵە کڕدراوەکان', icon: 'fa-file-invoice', color: 'box-green', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 12, name: 'قەرزی کۆمپانیاکان', icon: 'fa-building', color: 'box-green', link: '#', roles: ['super_admin', 'admin'] },
+            
+            // Orange boxes (13-17) - 5 boxes
+            { id: 13, name: 'لیستی قەرزارەکان', icon: 'fa-users', color: 'box-orange', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 14, name: 'وەرگرتنەوەی قەرز', icon: 'fa-hand-holding-usd', color: 'box-orange', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 15, name: 'ئاگادارکردنەوەی قیست', icon: 'fa-bell', color: 'box-orange', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 16, name: 'داشبۆردی قیست', icon: 'fa-chart-line', color: 'box-orange', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 17, name: 'ڕاپۆرتی قیست', icon: 'fa-file-alt', color: 'box-orange', link: '#', roles: ['super_admin', 'admin'] },
+            
+            // Red boxes (18-27) - 10 boxes
+            { id: 18, name: 'قاسە', icon: 'fa-coins', color: 'box-red', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 19, name: 'قازانجەکان', icon: 'fa-chart-pie', color: 'box-red', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 20, name: 'بەسەرچووەکان', icon: 'fa-calendar-times', color: 'box-red', link: '#', roles: ['super_admin', 'admin', 'store'] },
+            { id: 21, name: 'کاڵا کەمبووەکان', icon: 'fa-exclamation-triangle', color: 'box-red', link: '#', roles: ['super_admin', 'admin', 'store'] },
+            { id: 22, name: 'جەردی فرۆشراوەکان', icon: 'fa-chart-bar', color: 'box-red', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 23, name: 'کەشف حساب پارە', icon: 'fa-calculator', color: 'box-red', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 24, name: 'کەشف حسابی کڕیار', icon: 'fa-user-check', color: 'box-red', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 25, name: 'کەشف حسابی کڕین', icon: 'fa-shopping-bag', color: 'box-red', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 26, name: 'ڕاپۆرتی پارە', icon: 'fa-file-alt', color: 'box-red', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 27, name: 'جەردکردن', icon: 'fa-warehouse', color: 'box-red', link: '#', roles: ['super_admin', 'admin', 'store'] },
+            
+            // Brown boxes (28-32) - 5 boxes
+            { id: 28, name: 'بەکارهێنەری سیستەم', icon: 'fa-users-cog', color: 'box-brown', link: 'users.html', roles: ['super_admin'] },
+            { id: 29, name: 'پاشەکەوتی داتاکان', icon: 'fa-database', color: 'box-brown', link: '#', roles: ['super_admin'] },
+            { id: 30, name: 'دەفتەری ڕۆژانە', icon: 'fa-book', color: 'box-brown', link: '#', roles: ['super_admin', 'admin'] },
+            { id: 31, name: 'پێداویستی', icon: 'fa-clipboard-list', color: 'box-brown', link: '#', roles: ['super_admin', 'admin', 'store'] },
+            { id: 32, name: 'ڕێکخستن', icon: 'fa-cog', color: 'box-brown', link: 'settings.html', roles: ['super_admin', 'admin'] }
+        ];
+
+        // بارکردنی بۆکسەکان بەپێی ڕۆڵ
+        function loadBoxes() {
+            const user = getCurrentUser();
+            if (!user) return;
+            
+            const container = document.getElementById('dashboardBoxes');
+            container.innerHTML = '';
+            
+            // پێش هەموو شتێک، بۆکسەکان بە ڕیزبەندی یەکەم دەردەکەین
+            // تەنها ئەو بۆکسانەی کە ڕۆڵی بەکارهێنەر دەگونجێت
+            const visibleBoxes = allBoxes.filter(box => box.roles.includes(user.role));
+            
+            visibleBoxes.forEach(box => {
+                const boxDiv = document.createElement('div');
+                boxDiv.className = `box ${box.color}`;
+                boxDiv.onclick = () => {
+                    if (box.link !== '#') {
+                        window.location.href = box.link;
+                    } else {
+                        alert('ئەم بەشە لە وەشانی داهاتوودا زیاد دەکرێت');
+                    }
+                };
+                boxDiv.innerHTML = `
+                    <div class="box-icon"><i class="fas ${box.icon}"></i></div>
+                    <div class="box-title">${box.name}</div>
+                `;
+                container.appendChild(boxDiv);
+            });
+        }
+
+        // هەموو شتێک باربکە
+        function init() {
+            updateTopBar();
+            loadBoxes();
+            
+            // نوێکردنەوەی کات هەموو چرکەیەک
+            setInterval(updateTopBar, 1000);
+        }
+
+        // دەستپێکردن
+        init();
+    </script>
+</body>
+</html>
