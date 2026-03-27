@@ -356,115 +356,27 @@
             cursor: not-allowed;
         }
         
-        /* Camera Modal for device selection */
-        .camera-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 3000;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-        
-        .camera-container {
-            background: white;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90%;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .camera-header {
-            background: #1e3c72;
-            color: white;
-            padding: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .camera-selector {
-            padding: 10px;
-            background: #f5f5f5;
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-        
-        .camera-selector button {
-            padding: 8px 15px;
-            background: #2196F3;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        
-        .video-container {
-            position: relative;
-            background: #000;
-            text-align: center;
-        }
-        
-        #cameraVideo {
-            width: 100%;
-            max-height: 400px;
-            object-fit: cover;
-        }
-        
-        .camera-actions {
-            padding: 10px;
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-        
-        .capture-btn {
-            background: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        
-        .close-camera {
-            background: #f44336;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        
         /* Main Action Buttons - Below the boxes */
         .main-actions {
             display: flex;
             gap: 15px;
             justify-content: center;
-            margin: 15px auto 15px auto;
+            margin: 20px auto 15px auto;
             max-width: 1200px;
             padding: 0 15px;
             flex-shrink: 0;
         }
         
         .action-btn {
-            padding: 10px 25px;
+            flex: 1;
+            max-width: 180px;
+            padding: 12px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
             font-size: 14px;
             transition: all 0.3s;
-            white-space: nowrap;
         }
         
         .btn-save {
@@ -603,7 +515,7 @@
             }
             
             .main-actions {
-                margin: 15px auto 30px auto;
+                margin: 20px auto 30px auto;
                 position: relative;
                 bottom: auto;
             }
@@ -636,9 +548,8 @@
             }
             
             .action-btn {
-                padding: 8px 16px;
+                padding: 10px;
                 font-size: 12px;
-                white-space: nowrap;
             }
         }
     </style>
@@ -646,27 +557,6 @@
 <body>
     <!-- Top Bar -->
     <div class="top-bar" id="topBar"></div>
-    
-    <!-- Camera Modal -->
-    <div id="cameraModal" class="camera-modal">
-        <div class="camera-container">
-            <div class="camera-header">
-                <span>گرتنی وێنە لە ڕێگەی کامێرا</span>
-                <span class="close-modal" onclick="closeCameraModal()">&times;</span>
-            </div>
-            <div class="camera-selector" id="cameraSelector">
-                <button onclick="switchCamera('front')">کامێرای پێشەوە</button>
-                <button onclick="switchCamera('back')">کامێرای پشتەوە</button>
-            </div>
-            <div class="video-container">
-                <video id="cameraVideo" autoplay playsinline muted></video>
-            </div>
-            <div class="camera-actions">
-                <button class="capture-btn" onclick="capturePhoto()">گرتنی وێنە</button>
-                <button class="close-camera" onclick="closeCameraModal()">داخستن</button>
-            </div>
-        </div>
-    </div>
     
     <!-- Main Wrapper -->
     <div class="main-wrapper">
@@ -792,7 +682,7 @@
                             </div>
                             <div class="action-buttons">
                                 <button class="small-btn btn-blue" onclick="openGallery()">گرتنی وێنە</button>
-                                <button class="small-btn btn-green" onclick="openCameraModal()">کرنەوەی کامێرە</button>
+                                <button class="small-btn btn-green" onclick="openCamera()">کرنەوەی کامێرە</button>
                                 <button id="deleteImageBtn" class="small-btn btn-gray" onclick="deleteImage()" disabled>سڕینەوەی وێنە</button>
                             </div>
                         </div>
@@ -903,7 +793,7 @@
         </div>
     </div>
     
-    <!-- Modals (same as before) -->
+    <!-- Modals -->
     <div id="unitModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1062,12 +952,6 @@
         let packages = [];
         let timePackages = [];
         let hasImage = false;
-        
-        // Camera variables
-        let currentStream = null;
-        let currentCameraDevice = null;
-        let videoElement = null;
-        let allDevices = [];
         
         // Load data from localStorage
         function loadData() {
@@ -1349,10 +1233,10 @@
             companies.forEach((company, index) => {
                 tbody.innerHTML += `
                     <tr>
-                        <td>${company.name}</td>
-                        <td>${company.phone}</td>
-                        <td><i class="fas fa-trash delete-row" onclick="deleteCompany(${index})"></i></td>
-                    </tr>
+                        <td>${company.name}94
+                        <td>${company.phone}94
+                        <td><i class="fas fa-trash delete-row" onclick="deleteCompany(${index})"></i>94
+                    \\
                 `;
             });
         }
@@ -1522,136 +1406,24 @@
         
         // ==================== Tab Functions ====================
         function switchTab(tabId, btnElement) {
+            // Hide all tab panes
             document.querySelectorAll('.tab-content').forEach(pane => {
                 pane.classList.remove('active');
             });
             
+            // Remove active class from all buttons
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             
+            // Show selected tab pane
             document.getElementById(tabId).classList.add('active');
             
+            // Add active class to clicked button
             if (btnElement) {
                 btnElement.classList.add('active');
             } else {
                 event.target.classList.add('active');
-            }
-        }
-        
-        // ==================== Camera Functions ====================
-        async function getCameraDevices() {
-            try {
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                allDevices = devices.filter(device => device.kind === 'videoinput');
-                return allDevices;
-            } catch (err) {
-                console.error('Error getting devices:', err);
-                return [];
-            }
-        }
-        
-        async function startCamera(deviceId = null) {
-            if (currentStream) {
-                currentStream.getTracks().forEach(track => track.stop());
-            }
-            
-            const constraints = {
-                video: deviceId ? { deviceId: { exact: deviceId } } : true
-            };
-            
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                currentStream = stream;
-                videoElement = document.getElementById('cameraVideo');
-                videoElement.srcObject = stream;
-                await videoElement.play();
-                return true;
-            } catch (err) {
-                console.error('Error starting camera:', err);
-                alert('ناتوانرێت کامێرا بکرێتەوە. تکایە ڕێگەپێدان بدە');
-                return false;
-            }
-        }
-        
-        async function openCameraModal() {
-            const devices = await getCameraDevices();
-            
-            if (devices.length === 0) {
-                alert('هیچ کامێرایەک لەسەر ئامێرەکەت نەدۆزرایەوە');
-                return;
-            }
-            
-            const modal = document.getElementById('cameraModal');
-            modal.style.display = 'flex';
-            
-            // Start with the first available camera
-            currentCameraDevice = devices[0].deviceId;
-            await startCamera(currentCameraDevice);
-            
-            // Update camera selector buttons visibility based on available devices
-            const frontBtn = document.querySelector('#cameraSelector button:first-child');
-            const backBtn = document.querySelector('#cameraSelector button:last-child');
-            
-            if (devices.length === 1) {
-                frontBtn.style.display = 'none';
-                backBtn.style.display = 'none';
-            } else {
-                frontBtn.style.display = 'inline-block';
-                backBtn.style.display = 'inline-block';
-            }
-        }
-        
-        async function switchCamera(type) {
-            const devices = await getCameraDevices();
-            
-            let targetDevice = null;
-            
-            if (type === 'front') {
-                targetDevice = devices.find(device => device.label.toLowerCase().includes('front') || device.label.toLowerCase().includes('user'));
-            } else {
-                targetDevice = devices.find(device => device.label.toLowerCase().includes('back') || device.label.toLowerCase().includes('environment'));
-            }
-            
-            if (!targetDevice && devices.length > 0) {
-                targetDevice = devices[0];
-            }
-            
-            if (targetDevice && targetDevice.deviceId !== currentCameraDevice) {
-                currentCameraDevice = targetDevice.deviceId;
-                await startCamera(currentCameraDevice);
-            }
-        }
-        
-        function capturePhoto() {
-            if (!videoElement || !currentStream) return;
-            
-            const canvas = document.createElement('canvas');
-            canvas.width = videoElement.videoWidth;
-            canvas.height = videoElement.videoHeight;
-            const context = canvas.getContext('2d');
-            context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-            
-            const imageDataUrl = canvas.toDataURL('image/jpeg');
-            
-            document.getElementById('imageBox').innerHTML = `<img src="${imageDataUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">`;
-            hasImage = true;
-            updateDeleteImageBtn();
-            
-            closeCameraModal();
-        }
-        
-        function closeCameraModal() {
-            const modal = document.getElementById('cameraModal');
-            modal.style.display = 'none';
-            
-            if (currentStream) {
-                currentStream.getTracks().forEach(track => track.stop());
-                currentStream = null;
-            }
-            
-            if (videoElement) {
-                videoElement.srcObject = null;
             }
         }
         
@@ -1674,10 +1446,10 @@
             barcodeGroup.forEach((item, index) => {
                 tbody.innerHTML += `
                     <tr>
-                        <td><i class="fas fa-trash delete-row" onclick="removeBarcodeGroup(${index})"></i></td>
-                        <td>${item.barcode}</td>
-                        <td>${item.note}</td>
-                    </tr>
+                        <td><i class="fas fa-trash delete-row" onclick="removeBarcodeGroup(${index})"></i>94
+                        <td>${item.barcode}94
+                        <td>${item.note}94
+                    \\
                 `;
             });
         }
@@ -1706,10 +1478,10 @@
             packages.forEach((item, index) => {
                 tbody.innerHTML += `
                     <tr>
-                        <td><i class="fas fa-trash delete-row" onclick="removePackage(${index})"></i></td>
-                        <td>${item.quantity}</td>
-                        <td>${item.price.toLocaleString()}</td>
-                    </tr>
+                        <td><i class="fas fa-trash delete-row" onclick="removePackage(${index})"></i>94
+                        <td>${item.quantity}94
+                        <td>${item.price.toLocaleString()}94
+                    \\
                 `;
             });
         }
@@ -1741,11 +1513,11 @@
             timePackages.forEach((item, index) => {
                 tbody.innerHTML += `
                     <tr>
-                        <td>${item.quantity}</td>
-                        <td>${item.price.toLocaleString()}</td>
-                        <td>${item.expiry || '-'}</td>
-                        <td><i class="fas fa-trash delete-row" onclick="removeTimePackage(${index})"></i></td>
-                    </tr>
+                        <td>${item.quantity}94
+                        <td>${item.price.toLocaleString()}94
+                        <td>${item.expiry || '-'}94
+                        <td><i class="fas fa-trash delete-row" onclick="removeTimePackage(${index})"></i>94
+                    \\
                 `;
             });
         }
@@ -1777,6 +1549,21 @@
         
         function openGallery() {
             uploadImage();
+        }
+        
+        function openCamera() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+                        alert('کامێرە کرایەوە');
+                        stream.getTracks().forEach(track => track.stop());
+                    })
+                    .catch(err => {
+                        alert('ناتوانرێت کامێرە بکرێتەوە');
+                    });
+            } else {
+                alert('کامێرە پشتگیری ناکرێت');
+            }
         }
         
         function deleteImage() {
@@ -1900,7 +1687,7 @@
         
         function clearForm() {
             document.getElementById('productName').value = '';
-            document.getElementById('barcode').value = '';
+            document.getElementById('barcode').value = generateBarcode();
             document.getElementById('expiryDate').value = '';
             document.getElementById('companySelect').value = '';
             document.getElementById('categorySelect').value = 'بێ بارکۆد';
@@ -1922,6 +1709,7 @@
             renderPackageTable();
             renderTimePackageTable();
             
+            // Reset to first tab
             const firstTab = document.querySelector('.tab-btn');
             if (firstTab) {
                 switchTab('sell-image', firstTab);
@@ -1977,10 +1765,10 @@
         function init() {
             loadData();
             updateTopBar();
-            // Clear barcode field on load
-            document.getElementById('barcode').value = '';
+            generateBarcode();
             updateQuantityPriceBox();
             updateDeleteImageBtn();
+            // Make sure only sell-image tab is visible initially
             document.querySelectorAll('.tab-content').forEach(pane => {
                 pane.classList.remove('active');
             });
